@@ -1,0 +1,42 @@
+body {
+    background-color: #EFF4FB;
+}
+
+.page-header {
+    text-align: center;
+}
+
+.panel {
+    padding-left: 5%;
+    padding-right: 5%;
+
+}
+
+.table-header {
+    padding: 20px !important;
+    text-align: center;
+}
+
+.table-responsive {
+    text-align: center;
+}
+
+.input-group {
+    margin: auto;
+    width: 50%;
+}
+
+.pagination {
+    justify-content: space-between;
+}
+
+.pagination-detail {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.pagination-container {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    align-self: flex-end;
+}
