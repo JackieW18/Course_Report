@@ -1,34 +1,52 @@
 <?php
+// Only allow Post method
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+  http_response_code(404);
+  echo json_encode([
+    'error' => true,
+    'message' => "Please use POST Method"
+  ]);
+  exit();
+}
+
+http_response_code(200);
+
+// DB connection
 $servername = "localhost";
 $username = "root";
 $password = "whx19990818";
 $dbname = "mydb";
-
-http_response_code(200);
-
-// start connection
 $connection = @new mysqli($servername, $username, $password, $dbname);
 
 // Connection error handling
 if ($connection->connect_error) {
   http_response_code(400);
   echo json_encode([
-    'error'=>true,
-    'message'=>($connection->connect_error)
+    'error' => true,
+    'message' => ($connection->connect_error)
   ]);
   exit();
 }
 
 //Lookup the page if given, otherwise lookup the first page by default
 $pageSize = 20;
-$pageNow = 1;
-if (!empty($_GET['pageNow'])) {
-  $pageNow = $_GET['pageNow'];
+$pageNumber = 1;
+$totalPages = 0;
+$totalRows = 0;
+
+// Read POST parameters
+if (isset($_POST)) {
+  $input = file_get_contents("php://input");
+  $req = json_decode($input, true);
+  if (!empty($req['pageNumber'])) {
+    $pageNumber = $req['pageNumber'];
+  }
+
+  if (!empty($req['pageSize'])) {
+    $pageSize = $req['pageSize'];
+  }
 }
 
-// Fetch total row count
-$pageCount = 0;
-$rowCount = 0;
 $sql_row_fetch = 'SELECT COUNT(*) FROM courses
                       JOIN enrolments ON courses.ID = enrolments.Courses_ID
                       JOIN users ON users.ID = enrolments.Users_ID';
@@ -36,20 +54,20 @@ $result_row_fetch = $connection->query($sql_row_fetch);
 if (!$result_row_fetch) {
   http_response_code(400);
   echo json_encode([
-    'error'=>true,
-    'message'=>'Failed to query row count'
+    'error' => true,
+    'message' => 'Failed to query row count'
   ]);
   exit();
 }
 while ($row = mysqli_fetch_array($result_row_fetch)) {
-  $rowCount = $row['COUNT(*)'];
+  $totalRows = $row['COUNT(*)'];
 }
 
 // Calculate total page number
-$pageCount = ceil(($rowCount / $pageSize));
+$totalPages = ceil(($totalRows / $pageSize));
 
 // To calculate the index of the last item in the previous page 
-$startIndex = ($pageNow - 1) * $pageSize;
+$startIndex = ($pageNumber - 1) * $pageSize;
 
 // Array to store query data
 $data = array();
@@ -63,8 +81,8 @@ $results = $connection->query($sql);
 if (!$results) {
   http_response_code(400);
   echo json_encode([
-    'error'=>true,
-    'message'=>'Failed to query enrolment data'
+    'error' => true,
+    'message' => 'Failed to query enrolment data'
   ]);
   exit();
 }
@@ -87,7 +105,7 @@ if ($results->num_rows > 0) {
 }
 $connection->close();
 
-// Return the response containing the query result, total page count and row count
-$response = array("data" => $data, "pageCount" => $pageCount, "rowCount" => $rowCount);
+// Return the response containing the query result, total page count, total row count. start index and number of results
+$response = array("data" => $data, "totalPages" => $totalPages, "totalRows" => $totalRows, "startIndex"=>$startIndex, "rowNumber"=> $results->num_rows);
 echo json_encode(array("response" => $response));
 ?>

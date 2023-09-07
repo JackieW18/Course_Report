@@ -26,8 +26,13 @@ body {
     width: 50%;
 }
 
-.pagination {
+.pagination-row {
+    display: flex;
     justify-content: space-between;
+}
+
+.pagination {
+    justify-content: flex-end;
 }
 
 .pagination-detail {
