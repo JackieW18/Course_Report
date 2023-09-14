@@ -21,9 +21,15 @@ body {
     text-align: center;
 }
 
-.input-group {
+.input-group>.form-control {
     margin: auto;
-    width: 50%;
+    justify-content: space-around;
+    flex: none;
+    width: 40%;
+}
+
+.form-select {
+    width: 40%;
 }
 
 .pagination-row {
