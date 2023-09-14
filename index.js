@@ -72,13 +72,16 @@ function hidePagination() {
 
 function setPagination() {
     // Pagination
-    console.log(typeof pageNumber);
     $(".pagination").html("");
+    
+    // previous button
     $(".pagination").append(`<li class="paginate_button previous" onclick="previousPage()">
                                 <a class="page-link" href="javascript:void(0);" aria-label="Previous">
                                     <span class="sr-only">Previous</span>
                                 </a>
                             </li>`)
+
+    // Check if there are too many pages
     if (totalPages >= paginationLimit) {
         if (pageNumber < 5) {
             for (var i = 1; i <= 7; i++) {
@@ -89,7 +92,7 @@ function setPagination() {
             $(".pagination").append(`<li class="paginate_button page-item" data-pageNumber=${totalPages}>
                                             <a class="page-link" href="javascript:void(0);">${totalPages}</a></li>`);
             $(".page-item").eq(pageNumber - 1).addClass("active").siblings().removeClass("active");
-        } else if (pageNumber > totalPages - 5) {
+        } else if (pageNumber > totalPages - 4) {
             $(".pagination").append(`<li class="paginate_button page-item" data-pageNumber=1>
                                             <a class="page-link" href="javascript:void(0);">1</a></li>`);
             hidePagination();
@@ -99,7 +102,7 @@ function setPagination() {
             }
             $(".page-item").eq(7 - totalPages + pageNumber).addClass("active").siblings().removeClass("active");
         } else {
-            $(".pagination").append(`<li class="paginate_button page-item" data-pageNumber=${i}>
+            $(".pagination").append(`<li class="paginate_button page-item" data-pageNumber=1>
                                             <a class="page-link" href="javascript:void(0);">1</a></li>`);
             hidePagination();
             for (var i = 2; i >= -2; i--) {
