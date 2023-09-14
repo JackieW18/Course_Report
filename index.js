@@ -144,6 +144,7 @@ $(document).ready(function () {
             alert("Page out of range");
         } else {
             pageNumber = Number(input);
+            $("#pagination-input").val("");
             $("#jump-page-modal").modal('hide');
             getEnrolmentData();
         }
