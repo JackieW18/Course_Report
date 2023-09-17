@@ -21,6 +21,10 @@ body {
     text-align: center;
 }
 
+.input-group {
+    margin-bottom: 10px;
+}
+
 .input-group>.form-control {
     margin: auto;
     justify-content: space-around;
@@ -28,8 +32,9 @@ body {
     width: 40%;
 }
 
-.form-select {
-    width: 40%;
+.row {
+    margin: auto;
+    justify-content: space-around;
 }
 
 .pagination-row {

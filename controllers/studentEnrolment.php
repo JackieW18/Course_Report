@@ -33,6 +33,9 @@ $pageSize = 20;
 $pageNumber = 1;
 $totalPages = 0;
 $totalRows = 0;
+$nameQuery = "";
+$coursesQuery = "";
+$filteredCompletionStatus = [];
 
 // Read POST parameters
 if (isset($_POST)) {
@@ -45,11 +48,26 @@ if (isset($_POST)) {
   if (!empty($req['pageSize'])) {
     $pageSize = $req['pageSize'];
   }
+
+  if (!empty($req['nameQuery'])) {
+    $nameQuery = $req['nameQuery'];
+  }
+
+  if (!empty($req['coursesQuery'])) {
+    $coursesQuery = $req['coursesQuery'];
+  }
+
+  if (!empty($req['filteredCompletionStatus'])){
+    $filteredCompletionStatus = $req['filteredCompletionStatus'];
+  }
 }
 
 $sql_row_fetch = 'SELECT COUNT(*) FROM courses
                       JOIN enrolments ON courses.ID = enrolments.Courses_ID
-                      JOIN users ON users.ID = enrolments.Users_ID';
+                      JOIN users ON users.ID = enrolments.Users_ID
+                      WHERE CONCAT_WS(" ", FirstName, Surname) LIKE "%'. $nameQuery. '%" '.
+                      'AND Courses_ID LIKE "%'. $coursesQuery. '%" '.
+                      'AND CompletionStatus IN '. "('" . implode("','", $filteredCompletionStatus). "') ";
 $result_row_fetch = $connection->query($sql_row_fetch);
 if (!$result_row_fetch) {
   http_response_code(400);
@@ -73,16 +91,19 @@ $startIndex = ($pageNumber - 1) * $pageSize;
 $data = array();
 
 // Query data
-$sql = 'SELECT * FROM courses
+$sql = 'SELECT Users_ID, CONCAT_WS(" ", FirstName, Surname) AS Name, Courses_ID, Description, CompletionStatus FROM courses
             JOIN enrolments ON courses.ID = enrolments.Courses_ID
             JOIN users ON users.ID = enrolments.Users_ID
-            order by Surname, Firstname, Courses_ID limit ' . $startIndex . ', ' . $pageSize;
+            WHERE CONCAT_WS(" ", FirstName, Surname) LIKE "%'. $nameQuery. '%" '.
+            'AND Courses_ID LIKE "%'. $coursesQuery. '%" '.
+            'AND CompletionStatus IN '. "('" . implode("','", $filteredCompletionStatus). "') ".
+            'ORDER by Users_ID, Surname, Firstname, Courses_ID limit ' . $startIndex . ', ' . $pageSize;
 $results = $connection->query($sql);
 if (!$results) {
   http_response_code(400);
   echo json_encode([
     'error' => true,
-    'message' => 'Failed to query enrolment data'
+    'message' => $sql
   ]);
   exit();
 }
@@ -94,9 +115,9 @@ if ($results->num_rows > 0) {
     array_push(
       $data,
       array(
-        "firstName" => $row["FirstName"],
-        "surname" => $row["Surname"],
-        "courseID" => $row["Courses_ID"],
+        "usersID" => $row["Users_ID"],
+        "name" => $row["Name"],
+        "coursesID" => $row["Courses_ID"],
         "description" => $row["Description"],
         "completionStatus" => $row["CompletionStatus"]
       )

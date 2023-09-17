@@ -2,11 +2,14 @@ var pageNumber = 1;
 var pageSize = 20;
 var totalPages = 0;
 var paginationLimit = 15;
+var nameQuery = "";
+var coursesQuery = "";
+var filteredCompletionStatus = ["NOT STARTED", "IN PROGRESS", "COMPLETED"];
 
 getEnrolmentData();
 
 async function getEnrolmentData() {
-    let url = "./controllers/studentEnrolment.php"
+    let url = "./controllers/studentEnrolment.php";
 
     await fetch(url, {
         method: 'POST',
@@ -14,7 +17,10 @@ async function getEnrolmentData() {
         credentials: 'include',
         body: JSON.stringify({
             'pageNumber': pageNumber,
-            'pageSize': pageSize
+            'pageSize': pageSize,
+            'nameQuery': nameQuery,
+            'coursesQuery': coursesQuery,
+            'filteredCompletionStatus': filteredCompletionStatus
         }),
     })
         .then(res => {
@@ -24,12 +30,15 @@ async function getEnrolmentData() {
             console.log(res);
             $("#enrolments-table tbody").remove();
             var tbody = $("<tbody></tbody>")
+            if(res.response.rowNumber === 0){
+                tbody.append('<tr class="no-data"><td colspan="14">No Match Result Found</td></tr>');
+            }
             res.response.data.forEach(item => {
                 var tr = $("<tr></tr>");
 
-                tr.append("<td>" + item.firstName + "</td>" +
-                    "<td>" + item.surname + "</td>" +
-                    "<td>" + item.courseID + "</td>" +
+                tr.append("<td>" + item.usersID + "</td>" +
+                    "<td>" + item.name + "</td>" +
+                    "<td>" + item.coursesID + "</td>" +
                     "<td>" + item.description + "</td>" +
                     "<td>" + item.completionStatus + "</td>");
 
@@ -70,10 +79,15 @@ function hidePagination() {
                                             <a class="page-link" href="javascript:void(0);">...</a></li>`);
 }
 
+function clearSearch() {
+    $("#name-search").val("");
+    $("#courses-search").val("");
+}
+
 function setPagination() {
     // Pagination
     $(".pagination").html("");
-    
+
     // previous button
     $(".pagination").append(`<li class="paginate_button previous" onclick="previousPage()">
                                 <a class="page-link" href="javascript:void(0);" aria-label="Previous">
@@ -151,6 +165,46 @@ $(document).ready(function () {
             $("#jump-page-modal").modal('hide');
             getEnrolmentData();
         }
+    });
+
+    $("#btn-search").click(function () {
+        // Get name search input
+        nameQuery = $("#name-search").val();
+
+        // Get courses search input
+        coursesQuery = $("#courses-search").val();
+
+        // Reset page number back to 1
+        pageNumber = 1;
+
+        // Get the filtered completion status
+        filteredCompletionStatus=[];
+        if($("#checkbox-not-started").is(':checked')){filteredCompletionStatus.push($("#checkbox-not-started").val())}
+        if($("#checkbox-in-progress").is(':checked')){filteredCompletionStatus.push($("#checkbox-in-progress").val())}
+        if($("#checkbox-completed").is(':checked')){filteredCompletionStatus.push($("#checkbox-completed").val())}
+
+        getEnrolmentData();
+    });
+
+    $('#btn-reset').click(function(){
+        // Clear name query input
+        $("#name-search").val("");
+        nameQuery = "";
+
+        // Clear courses query input
+        $("#courses-search").val("");
+        coursesQuery = "";
+
+        // Reset page number
+        pageNumber = 1;
+
+        // Reset the check boxes
+        $("#checkbox-not-started").prop('checked', true);
+        $("#checkbox-in-progress").prop('checked', true);
+        $("#checkbox-completed").prop('checked', true);
+        filteredCompletionStatus = ["NOT STARTED", "IN PROGRESS", "COMPLETED"];
+
+        getEnrolmentData();
     });
 })
 
