@@ -10,7 +10,7 @@ Step 3:
 In the **controllers** folder, please open the ```databaseConfig.php``` file which contains the database connection information. Set the ```$password``` to your local database password.
 
 Now the system should be running. Locally, I access the server by the following link:
-http://localhost/MindAtlas/PHP_Student_Enrolments
+http://localhost/MindAtlas/Course_report
 
 ## System Information:
 The system displays enrolment information in a table with result separated in pages and each page contains 20 results.
