@@ -11,11 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 http_response_code(200);
 
-// DB connection
-$servername = "localhost";
-$username = "root";
-$password = "whx19990818";
-$dbname = "mydb";
+include 'databaseConfig.php';
 $connection = @new mysqli($servername, $username, $password, $dbname);
 
 // Connection error handling
